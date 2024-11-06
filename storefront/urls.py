@@ -27,5 +27,7 @@ urlpatterns = [
     path('store/',include('store.urls')),
     path('auth/',include("djoser.urls")),
     path('auth/',include("djoser.urls.jwt")),
+    path('chatbox/',include('chatbox.urls')),
+    
     
 ]

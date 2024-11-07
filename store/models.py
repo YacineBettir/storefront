@@ -3,7 +3,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from uuid import uuid4
 from decimal import Decimal
-from django.conf import settings
+
+from storefront import settings
 
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
@@ -13,7 +14,10 @@ class Promotion(models.Model):
 class Collection(models.Model):
     title = models.CharField(max_length=255)
     featured_product = models.ForeignKey(
-        'Product', on_delete=models.SET_NULL,related_name='featured_product', null=True, blank=True)
+                                            'Product', on_delete=models.SET_NULL,
+                                            related_name='featured_product', 
+                                            null=True, blank=True
+                                        )
 
     def __str__(self) -> str:
         return self.title
@@ -51,24 +55,31 @@ class Customer(models.Model):
         (MEMBERSHIP_GOLD, 'Gold'),
     ]
     phone = models.CharField(max_length=255)
+    
     birth_date = models.DateField(null=True, blank=True)
     membership = models.CharField(
-        max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
-    user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-    
-    @admin.display(ordering='user__first_name')
-    def first_name(self):
-        return self.user.first_name
-    
-    @admin.display(ordering='user__last_name')
-    def last_name(self):
-        return self.user.last_name
+        max_length=1, 
+        choices=MEMBERSHIP_CHOICES, 
+        default=MEMBERSHIP_BRONZE)
+    user=models.OneToOneField(settings.AUTH_USER_MODEL,
+                              on_delete=models.CASCADE,)
     
     def __str__(self):
         return f'{self.user.first_name} {self.user.last_name}'
 
+    @admin.display(ordering='user__first_name')
+    def first_name(self):
+        return self.user.first_name
+
+    @admin.display(ordering='user__last_name')
+    def last_name(self):
+        return self.user.last_name
+
     class Meta:
         ordering = ['user__first_name', 'user__last_name']
+        permissions=[
+            ('view_history','Can View History'),
+        ]
 
 
 class Order(models.Model):
@@ -84,8 +95,11 @@ class Order(models.Model):
 
     placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(
-        max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
-    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+        max_length=1,
+        choices=PAYMENT_STATUS_CHOICES, 
+        default=PAYMENT_STATUS_PENDING)
+    customer = models.ForeignKey(Customer,
+                                 on_delete=models.PROTECT)
     
     class Meta:
         permissions=[
@@ -97,7 +111,8 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
-    product = models.ForeignKey(Product, on_delete=models.PROTECT,related_name='orderitems')
+    product = models.ForeignKey(Product, on_delete=models.PROTECT,
+                                related_name='orderitems')
 
 
 class Address(models.Model):
@@ -114,8 +129,12 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(Decimal(1))])
-    cart=models.ForeignKey(Cart,on_delete=models.CASCADE,related_name='items')
+    quantity = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(Decimal(1))]
+    )
+    cart=models.ForeignKey(Cart,on_delete=models.CASCADE,
+                           related_name='items'
+                        )
     
     class Meta:
         unique_together = [['cart', 'product']]
@@ -124,5 +143,7 @@ class Review(models.Model):
     name=models.CharField(max_length=255)
     description=models.TextField()
     date=models.DateField(auto_now_add=True)
-    product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name='reviews')
+    product=models.ForeignKey(Product,on_delete=models.CASCADE,
+                              related_name='reviews'
+                            )
     

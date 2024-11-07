@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from datetime import timedelta
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -74,7 +75,7 @@ ROOT_URLCONF = 'storefront.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -99,7 +100,7 @@ DATABASES = {
         'NAME': 'storefront2',
         'HOST': 'localhost',
         'USER': 'root',
-        'PASSWORD': 'Bettir1126'
+        'PASSWORD':'Bettir1126',
     }
 }
 
@@ -160,6 +161,7 @@ SIMPLE_JWT={
 
 }
 AUTH_USER_MODEL='core.User'
+
 DJOSER={
     'SERIALIZERS':{
         'user_create':"core.serializers.UserCreateSerializer",

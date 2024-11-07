@@ -1,10 +1,9 @@
 from pyexpat.errors import messages
 from django.conf import settings
+from openai import OpenAI
 from dotenv import load_dotenv
-from openai import OpenAI, api_key
 from rest_framework import serializers
 from chatbox.models import ChatMessage
-from dotenv import load_dotenv
 import os
 
 

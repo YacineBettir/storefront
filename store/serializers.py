@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from  decimal import Decimal
+from store import permissions
 from store.models import Product,Collection,Review,Cart,CartItem,Customer
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -101,10 +102,18 @@ class UpdateCartItemSerializer(serializers.ModelSerializer):
         fields=['quantity',]
         
         
-class CustromerSerializer(serializers.ModelSerializer):
-    user_id=serializers.IntegerField()
-    
-    class Meta :
-        model=Customer
-        fields=['id','user_id','phone','birth_date','membership']
+class CustomerSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(read_only=True)
 
+    class Meta:
+        model = Customer
+        fields = ['id', 'user_id', 'phone', 'birth_date', 'membership']
+       
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user_details'] = {
+            'username': instance.user.username,
+            'email': instance.user.email,
+        }
+        representation.pop('id') 
+        return representation
